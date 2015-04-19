@@ -270,8 +270,150 @@ clone: function()
 
 
 
+
+// Using hasOwnProperty() to call that method off of the Object.prototype, like so:
+
 for (var i in man) {
     if (Object.prototype.hasOwnProperty.call(man, i)) { // filter
         console.log(i, ":", man[i]);
     }
 }
+
+
+// To avoid the long property lookups all the way to Object, you can use a local variable to “cache” it:
+
+var i,
+    hasOwn = Object.prototype.hasOwnProperty;
+for (i in man) {
+    if (hasOwn.call(man, i)) { // filter
+        console.log(i, ":", man[i]);
+    }
+}
+
+//variation
+// Warning: doesn't pass JSLint
+var i,
+    hasOwn = Object.prototype.hasOwnProperty;
+for (i in man) if (hasOwn.call(man, i)) { // filter
+    console.log(i, ":", man[i]);
+}
+
+
+//Custom addition to the prototype
+if (typeof Object.prototype.myMethod !== "function") {
+    Object.protoype.myMethod = function () {
+        // implementation...
+    };
+}
+
+
+//switch Pattern
+
+var inspect_me = 0,
+    result = '';
+
+switch (inspect_me) {
+case 0:
+    result = "zero";
+    break;
+case 1:
+    result = "one";
+    break;
+default:
+    result = "unknown";
+}
+
+
+/*
+JavaScript implicitly typecasts variables when you compare them.
+That’s why comparisons such as false == 0 or "" == 0 return true.
+
+To avoid confusion caused by the implied typecasting,
+always use the === and !== operators that check both
+the values and the type of the expressions
+*/
+
+var zero = 0;
+if (zero === false) {
+    // not executing because zero is 0, not false
+}
+
+// antipattern
+if (zero == false) {
+    // this block is executed...
+}
+
+
+// Avoiding eval()
+//“eval() is evil.”
+// antipattern
+var property = "name";
+alert(eval("obj." + property));
+
+// preferred
+var property = "name";
+alert(obj[property]);
+
+// JSON.parse()
+
+// antipatterns
+setTimeout("myFunc()", 1000);
+setTimeout("myFunc(1, 2, 3)", 1000);
+
+// preferred
+setTimeout(myFunc, 1000);
+setTimeout(function () {
+    myFunc(1, 2, 3);
+}, 1000);
+
+
+
+
+console.log(typeof un);    // "undefined"
+console.log(typeof deux);  // "undefined"
+console.log(typeof trois); // "undefined"
+
+var jsstring = "var un = 1; console.log(un);";
+eval(jsstring); // logs "1"
+
+jsstring = "var deux = 2; console.log(deux);";
+new Function(jsstring)(); // logs "2"
+
+jsstring = "var trois = 3; console.log(trois);";
+(function () {
+    eval(jsstring);
+}()); // logs "3"
+
+console.log(typeof un);    // "number"
+console.log(typeof deux);  // "undefined"
+console.log(typeof trois); // "undefined"
+
+/*
+eval() can access and modify a variable in its outer scope,
+whereas Function cannot (also note that using Function 
+or new Function is identical):
+*/
+(function () {
+    var local = 1;
+    eval("local = 3; console.log(local)"); // logs 3
+    console.log(local); // logs 3
+}());
+
+
+(function () {
+    var local = 1;
+    Function("console.log(typeof local);")(); // logs undefined
+}());
+
+
+// Number Conversions with parseInt()
+// Function accepts a second radix parameter,
+// which is often omitted but shouldn’t be.
+var month = "06",
+    year = "09";
+month = parseInt(month, 10);
+year = parseInt(year, 10);
+
+//Alternative ways to convert a string to a number include:
++"08" // result is 8
+Number("08") // 8
